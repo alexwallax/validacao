@@ -1,10 +1,15 @@
 from rest_framework import serializers
 from escola.models import Estudante,Curso, Matricula
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+from datetime import datetime
+
 
 class EstudanteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Estudante
         fields = ['id','nome','email','cpf','data_nascimento','celular']
+
 '''
     def validate_cpf(self,cpf):
         if len(cpf) != 11:
@@ -30,6 +35,23 @@ def validate(self, dados):
 	if len(dados['celular']) != 13:
 		raise serializers.ValidationError({'celular': 'O celular precisa ter 13 digito!'})
 	return dados
+
+def validar_email(email):
+    try:
+        validate_email(email)
+        return True  
+    except ValidationError:
+        return False  
+
+def validar_data(data_nascimento):
+    formato = "%Y-%m-%d"  
+    try:
+        datetime.strptime(data_nascimento, formato)
+        return True 
+    except ValueError:
+        raise ValidationError(f"Data '{data_nascimento}' é inválida. Use o formato YYYY-MM-DD.")
+
+     
 
       
 class CursoSerializer(serializers.ModelSerializer):
